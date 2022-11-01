@@ -16,9 +16,10 @@ require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
 require_once './middlewares/SalidaMiddlewares.php';
 require_once './middlewares/EntradaMiddlewares.php';
+require_once './middlewares/VerificarMiddleware.php';
 
 require_once './controllers/UsuarioController.php';
-require_once './controllers/LoginMiddlewares.php';
+require_once './controllers/LoginControllers.php';
 
 // Load ENV
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -48,7 +49,7 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   $group->get('[/]', \UsuarioController::class . ':TraerTodos');
   $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
   $group->post('[/]', \UsuarioController::class . ':CargarUno');
-  $group->post('/login', \LoginControllers::class . ':Verificar');
+  $group->post('/login', \LoginControllers::class . ':Verificar')->add(new VerificarMiddleware());
   $group->put('[/]', \UsuarioController::class . ':ModificarUno');
   $group->delete('[/]', \UsuarioController::class . ':BorrarUno');
 }); /*->add(new SalidaMiddleware())->add(new EntradaMiddlewares());*/
