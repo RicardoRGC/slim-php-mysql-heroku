@@ -12,10 +12,20 @@ class LoginControllers extends Usuario
             $usuario = $parametros['nombre'];
             $clave = $parametros['clave'];
 
+
             $usuario = Usuario::obtenerUsuario($usuario);
 
             if (password_verify($clave, $usuario->clave)) {
                 $mensaje = 'Password is valid!';
+
+                $datos = array('usuario' => $parametros['nombre'], 'clave' => $parametros['clave'], 'tipo_perfil' => $usuario->tipo_perfil);
+
+                $token = AutentificadorJWT::CrearToken($datos);
+                $payload = json_encode(array('jwt' => $token));
+
+                $response->getBody()->write($payload);
+                return $response
+                    ->withHeader('Content-Type', 'application/json');
             } else {
                 $mensaje = 'Invalid password.';
             }

@@ -6,6 +6,7 @@ class UsuarioController extends Usuario implements IApiUsable
 {
   public function CargarUno($request, $response, $args)
   {
+
     $parametros = $request->getParsedBody();
 
     $usuario = $parametros['nombre'];
@@ -46,25 +47,45 @@ class UsuarioController extends Usuario implements IApiUsable
     return $response
       ->withHeader('Content-Type', 'application/json');
   }
-
+  ///MODIFICAR----------------------------------------------------------------------------------
   public function ModificarUno($request, $response, $args)
   {
-    $parametros = $request->getParsedBody();
 
-    var_dump($parametros);
+    $header = $request->getHeaderLine('Authorization');
+    $token = trim(explode("Bearer", $header)[1]);
+    $esValido = false;
 
-    $nombre = $parametros['nombre'];
-    $clave = $parametros['clave'];
-    $id = $parametros['id'];
+    try {
+      AutentificadorJWT::verificarToken($token);
+      $esValido = true;
+    } catch (Exception $e) {
+      $payload = json_encode(array('error' => $e->getMessage()));
+    }
 
-    $usr = new Usuario();
-    $usr->usuario = $nombre;
-    $usr->clave = $clave;
-    $usr->id = $id;
+    if ($esValido) {
+      $parametros = $request->getParsedBody();
+      if ($parametros != null) {
 
-    $usr->modificarUsuario();
+        var_dump($parametros);
 
-    $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+        $nombre = $parametros['nombre'];
+        $clave = $parametros['clave'];
+        $id = $parametros['id'];
+
+        $usr = new Usuario();
+        $usr->usuario = $nombre;
+        $usr->clave = $clave;
+        $usr->id = $id;
+
+        $usr->modificarUsuario();
+
+        $payload = json_encode(array("mensaje" => "Usuario modificado con exito"));
+      } else {
+        $payload = json_encode("error de datos");
+      }
+    }
+    //-----------------------------------------------------------
+
 
     $response->getBody()->write($payload);
     return $response

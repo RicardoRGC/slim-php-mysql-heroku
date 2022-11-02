@@ -11,7 +11,7 @@ use Slim\Routing\RouteCollectorProxy;
 use Slim\Routing\RouteContext;
 
 require __DIR__ . '/../vendor/autoload.php';
-
+require_once './controllers/AutentificadorJWT.php';
 require_once './db/AccesoDatos.php';
 // require_once './middlewares/Logger.php';
 require_once './middlewares/SalidaMiddlewares.php';
@@ -49,10 +49,13 @@ $app->group('/usuarios', function (RouteCollectorProxy $group) {
   $group->get('[/]', \UsuarioController::class . ':TraerTodos');
   $group->get('/{usuario}', \UsuarioController::class . ':TraerUno');
   $group->post('[/]', \UsuarioController::class . ':CargarUno');
-  $group->post('/login', \LoginControllers::class . ':Verificar')->add(new VerificarMiddleware());
   $group->put('[/]', \UsuarioController::class . ':ModificarUno');
   $group->delete('[/]', \UsuarioController::class . ':BorrarUno');
-}); /*->add(new SalidaMiddleware())->add(new EntradaMiddlewares());*/
+})->add(new VerificarMiddleware());
+
+
+$app->post('/login', \LoginControllers::class . ':Verificar');
+
 
 $app->get('[/]', function (Request $request, Response $response) {
   $response->getBody()->write("Pagina RGraf");
